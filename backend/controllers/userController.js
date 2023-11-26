@@ -31,7 +31,7 @@ const loginUser = async (req, res) => {
         const actualPassword = await bcrypt.compare(password, user.password)
         if (actualPassword) {
             res.status(201).json({
-                token:generateToken(user._id)
+                token: generateToken(user._id)
             })
             return
         }
@@ -43,5 +43,14 @@ const loginUser = async (req, res) => {
         res.send("No User Exists.")
     }
 }
+const myProfile = async (req, res) => {
+    const { token } = req.body
+    const verifiedToken = jwt.verify(token,process.env.JWT_SECRET_KEY)
+    const decoded = verifiedToken.id
+    const user = await User.findOne({ _id: decoded })
+    res.status(201).json({
+        name: user.username
+    })
+}
 
-module.exports = { registerUser, loginUser }
+module.exports = { registerUser, loginUser, myProfile }
