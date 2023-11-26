@@ -11,6 +11,7 @@ const MainComponent = () => {
   const [name, setName] = useState("")
   const [password, setPassword] = useState("")
   const [passwordList, setPasswordList] = useState([])
+  const [temp, setTemp] = useState(false)
   const [loading, setLoading] = useState(true)
   const [seekArray, setSeekArray] = useState(Array(passwordList.length).fill(false))
   const [passwordLoader, setPasswordLoader] = useState(true)
@@ -34,7 +35,7 @@ const MainComponent = () => {
     if (JSON.parse(localStorage.getItem('passwordManager'))) {
       getAllPasswords()
     }
-  }, [])
+  }, [temp])
   const handleNewPasswordSubmit = async () => {
     if (!name || !password) {
       toast.warning("Enter all fields.", {
@@ -55,6 +56,7 @@ const MainComponent = () => {
     setNewPasswordModal(false)
     setName("")
     setPassword("")
+    setTemp(!temp)
     toast.success("New Password Managed", {
       position: 'top-center'
     })
@@ -116,12 +118,13 @@ const MainComponent = () => {
         'Authorization': `Bearer ${JSON.parse(localStorage.getItem('passwordManager'))}`
       }
     }
-     await axios.put(EDIT_MY_PASS, {
+    await axios.put(EDIT_MY_PASS, {
       password_id: passwordId,
       updatedPassword: updatedPassword
     }, config)
     setUpdatedPassword("")
     setEditModal(false)
+    setTemp(!temp)
     toast.success("Password Edited", {
       position: 'top-center'
     })
@@ -135,9 +138,13 @@ const MainComponent = () => {
       data: {
         password_id: id
       }
-    }).then((res) => toast.error("Password Deleted...", {
-      position: 'top-center'
-    })).catch((error) => console.log(error))
+    }).then((res) => {
+      setTemp(!temp)
+      toast.error("Password Deleted...", {
+        position: 'top-center'
+      }
+      )
+    }).catch((error) => console.log(error))
   }
   return (
     <>
